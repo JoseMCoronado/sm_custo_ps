@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record model="ir.ui.view" id="view_order_form_mod">
+    <field name="name">x_jos.sale.order.form.mod</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='order_line']//tree//field[@name='product_uom_qty']" position="before">
+        <field name="x_hq_qoh"/>
+        <field name="x_mtv_qoh"/>
+        <field name="x_ext_qoh"/>
+        <button name="%(action_server_so_line_quants)d" type="action" string="INV"/>
+        <field name="x_serial"/>
+      </xpath>
+      <xpath expr="//button[@name='action_confirm' and @states='sent']" position="attributes">
+        <attribute name="name">%(action_server_confirm_sale)d</attribute>
+        <attribute name="type">action</attribute>
+      </xpath>
+      <xpath expr="//button[@name='action_confirm' and @states='draft']" position="attributes">
+        <attribute name="name">%(action_server_confirm_sale)d</attribute>
+        <attribute name="type">action</attribute>
+      </xpath>
+    </field>
+  </record>
+  <record model="ir.ui.view" id="crm_team_view_form_mod">
+    <field name="name">x_jos.crm.team.form.mod</field>
+    <field name="model">crm.team</field>
+    <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='dashboard']//field[@name='invoiced_target']" position="after">
+        <field name="x_fiscal_position_id"/>
+        <field name="x_journal_id"/>
+        <field name="x_payment_journal_id"/>
+        <field name="x_automate"/>
+      </xpath>
+    </field>
+  </record>
+  <record model="ir.ui.view" id="view_account_journal_form_mod">
+    <field name="name">x_jos.account.journal.form.mod</field>
+    <field name="model">account.journal</field>
+    <field name="inherit_id" ref="account.view_account_journal_form"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='default_credit_account_id']" position="after">
+        <field name="x_analytic_account_id"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

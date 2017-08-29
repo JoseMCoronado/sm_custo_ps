@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!--Computed fields to calculate QoH in different inventory locations-->
+    <record model="ir.model.fields" id="sale_hq_qoh">
+        <field name="field_description">HQ QoH</field>
+        <field name="name">x_hq_qoh</field>
+        <field name="model">sale.order.line</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="False"/>
+        <field name="readonly" eval="True"/>
+        <field name="ttype">float</field>
+        <field name="compute"><![CDATA[for record in self:
+          quants = record.env['stock.quant'].search([('product_id','=',record.product_id.id),('location_id','=',15)])
+          record['x_hq_qoh'] = sum(quants.mapped(lambda r: r.qty))
+          ]]></field>
+    </record>
+    <record model="ir.model.fields" id="sale_mtv_qoh">
+        <field name="field_description">MTV QoH</field>
+        <field name="name">x_mtv_qoh</field>
+        <field name="model">sale.order.line</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="False"/>
+        <field name="readonly" eval="True"/>
+        <field name="ttype">float</field>
+        <field name="compute"><![CDATA[for record in self:
+          quants = record.env['stock.quant'].search([('product_id','=',record.product_id.id),('location_id','=',22)])
+          record['x_mtv_qoh'] = sum(quants.mapped(lambda r: r.qty))
+          ]]></field>
+    </record>
+    <record model="ir.model.fields" id="sale_ext_qoh">
+        <field name="field_description">EXT QoH</field>
+        <field name="name">x_ext_qoh</field>
+        <field name="model">sale.order.line</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="False"/>
+        <field name="readonly" eval="True"/>
+        <field name="ttype">float</field>
+        <field name="compute"><![CDATA[for record in self:
+          quants = record.env['stock.quant'].search([('product_id','=',record.product_id.id),('location_id','=',28)])
+          record['x_ext_qoh'] = sum(quants.mapped(lambda r: r.qty))
+          ]]></field>
+    </record>
+    <!--serial field on the sale order line-->
+    <record model="ir.model.fields" id="sale_line_serial">
+        <field name="field_description">Serial#</field>
+        <field name="name">x_serial</field>
+        <field name="model">sale.order.line</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="readonly" eval="False"/>
+        <field name="ttype">char</field>
+    </record>
+    <!--Fiscal Position to set on the crm.team-->
+    <record model="ir.model.fields" id="team_fiscal_position">
+        <field name="field_description">Fiscal Position</field>
+        <field name="name">x_fiscal_position_id</field>
+        <field name="model">crm.team</field>
+        <field name="model_id" ref="sales_team.model_crm_team"/>
+        <field name="relation">account.fiscal.position</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <!--Boolean to automate transfer/invoice creation and validation on team -->
+    <record model="ir.model.fields" id="team_check_automate">
+        <field name="field_description">Automate Transfer/Invoice Validation</field>
+        <field name="name">x_automate</field>
+        <field name="model">crm.team</field>
+        <field name="model_id" ref="sales_team.model_crm_team"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">boolean</field>
+    </record>
+    <!--Adding journal and analytic account links to crm.team and journal respectively-->
+    <record model="ir.model.fields" id="team_journal">
+        <field name="field_description">Journal</field>
+        <field name="name">x_journal_id</field>
+        <field name="model">crm.team</field>
+        <field name="model_id" ref="sales_team.model_crm_team"/>
+        <field name="relation">account.journal</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <!--Payment Journal on Sale Order-->
+    <record model="ir.model.fields" id="team_payment_journal">
+        <field name="field_description">Payment Journal</field>
+        <field name="name">x_payment_journal_id</field>
+        <field name="model">crm.team</field>
+        <field name="model_id" ref="sales_team.model_crm_team"/>
+        <field name="relation">account.journal</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <record model="ir.model.fields" id="journal_analytic_account">
+        <field name="field_description">Analytic Account</field>
+        <field name="name">x_analytic_account_id</field>
+        <field name="model">account.journal</field>
+        <field name="model_id" ref="account.model_account_journal"/>
+        <field name="relation">account.analytic.account</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <!--Analytic account assignment for POS JEs-->
+    <!--Analytic account assignment on Orders/Invoices for sales teams.-->
+  </data>
+</odoo>

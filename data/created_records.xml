@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--Renaming default team and creating sales teams for all of the other stores-->
+  <record model="crm.team" id="sales_team.team_sales_department">
+    <field name="name">B2B/Home Automation</field>
+  </record>
+  <record model="crm.team" id="team_hq_team">
+      <field name="name">HQ Retail Sales</field>
+      <field name="team_type">sales</field>
+  </record>
+  <record model="crm.team" id="team_mtv_team">
+      <field name="name">MTV Retail Sales</field>
+      <field name="team_type">sales</field>
+  </record>
+  <record model="crm.team" id="team_ext_team">
+      <field name="name">EXT Retail Sales</field>
+      <field name="team_type">sales</field>
+  </record>
+  <!--Creating Fiscal Positions for Every Store-->
+  <record model="account.fiscal.position" id="account_fiscal_position_hq">
+      <field name="name">HQ Tax Position</field>
+  </record>
+  <record model="account.fiscal.position" id="account_fiscal_position_mtv">
+      <field name="name">MTV Tax Position</field>
+  </record>
+  <record model="account.fiscal.position" id="account_fiscal_position_ext">
+      <field name="name">EXT Tax Position</field>
+  </record>
+  <!--Creating Sales Journals & Sequences for Each Team-->
+  <record model="ir.sequence" id="sequence_journal_sale_hq">
+    <field name="name">HQ Invoices</field>
+    <field name="implementation">no_gap</field>
+    <field name="active" eval="True"/>
+    <field name="padding">4</field>
+    <field name="prefix">HQ/%(range_year)s/</field>
+    <field name="use_date_range" eval="True"/>
+  </record>
+  <record model="account.journal" id="journal_sale_hq">
+      <field name="name">HQ Invoices</field>
+      <field name="type">sale</field>
+      <field name="code">HQ</field>
+      <field name="sequence_id" ref="sm_custo_ps.sequence_journal_sale_hq"/>
+      <field name="show_on_dashboard" eval="True"/>
+      <field name="default_debit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+      <field name="default_credit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+  </record>
+  <record model="ir.sequence" id="sequence_journal_sale_mtv">
+    <field name="name">MTV Invoices</field>
+    <field name="implementation">no_gap</field>
+    <field name="active" eval="True"/>
+    <field name="padding">4</field>
+    <field name="prefix">MTV/%(range_year)s/</field>
+    <field name="use_date_range" eval="True"/>
+  </record>
+  <record model="account.journal" id="journal_sale_mtv">
+      <field name="name">MTV Invoices</field>
+      <field name="type">sale</field>
+      <field name="code">MTV</field>
+      <field name="sequence_id" ref="sm_custo_ps.sequence_journal_sale_mtv"/>
+      <field name="show_on_dashboard" eval="True"/>
+      <field name="default_debit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+      <field name="default_credit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+  </record>
+  <record model="ir.sequence" id="sequence_journal_sale_ext">
+    <field name="name">EXT Invoices</field>
+    <field name="implementation">no_gap</field>
+    <field name="active" eval="True"/>
+    <field name="padding">4</field>
+    <field name="prefix">EXT/%(range_year)s/</field>
+    <field name="use_date_range" eval="True"/>
+  </record>
+  <record model="account.journal" id="journal_sale_ext">
+      <field name="name">EXT Invoices</field>
+      <field name="type">sale</field>
+      <field name="code">EXT</field>
+      <field name="sequence_id" ref="sm_custo_ps.sequence_journal_sale_ext"/>
+      <field name="show_on_dashboard" eval="True"/>
+      <field name="default_debit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+      <field name="default_credit_account_id" ref="l10n_generic_coa.1_conf_a_sale"/>
+  </record>
+  <!--Creating Analytic Accounts for Each Store-->
+  <record model="account.analytic.account" id="analytic_account_hq">
+      <field name="name">HQ Retail Sales</field>
+  </record>
+  <record model="account.analytic.account" id="analytic_account_mtv">
+      <field name="name">MTV Retail Sales</field>
+  </record>
+  <record model="account.analytic.account" id="analytic_account_ext">
+      <field name="name">EXT Retail Sales</field>
+  </record>
+  <!--Creating All Pos Configs for each team-->
+  <record model="pos.config" id="point_of_sale.pos_config_main">
+      <field name="name">HQ Retail</field>
+  </record>
+  <record model="pos.config" id="pos_config_mtv">
+      <field name="name">MTV Retail</field>
+  </record>
+  <record model="pos.config" id="pos_config_ext">
+      <field name="name">EXT Retail</field>
+  </record>
+</odoo>
