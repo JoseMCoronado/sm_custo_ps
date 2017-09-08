@@ -12,13 +12,14 @@
         <field name="x_ext_qoh"/>
         <button name="%(action_server_so_line_quants)d" type="action" string="INV"/>
         <field name="x_serial"/>
+        <field name="x_description" domain="[('id','=',0)]" context="{'default_x_order_line_id':active_id}"/>
       </xpath>
       <xpath expr="//button[@name='action_confirm' and @states='sent']" position="attributes">
-        <attribute name="name">%(action_server_confirm_sale)d</attribute>
+        <attribute name="name">%(action_pre_sales_confirm)d</attribute>
         <attribute name="type">action</attribute>
       </xpath>
       <xpath expr="//button[@name='action_confirm' and @states='draft']" position="attributes">
-        <attribute name="name">%(action_server_confirm_sale)d</attribute>
+        <attribute name="name">%(action_pre_sales_confirm)d</attribute>
         <attribute name="type">action</attribute>
       </xpath>
     </field>
@@ -45,7 +46,37 @@
     <field name="arch" type="xml">
       <xpath expr="//field[@name='default_credit_account_id']" position="after">
         <field name="x_analytic_account_id"/>
+        <field name="x_team_id"/>
       </xpath>
     </field>
+  </record>
+  <record model="ir.ui.view" id="order_line_desc_form">
+    <field name="name">x_jos.order.line.desc.form</field>
+    <field name="model">x_order.line.desc</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" eval="False"/>
+    <field name="arch" type="xml">
+      <form>
+            <group>
+                <field name="x_line_desc" nolabel="1"/>
+                <field name="x_order_line_id" invisible="1"/>
+            </group>
+        </form>
+    </field>
+    <field name="priority">15</field>
+  </record>
+  <record model="ir.ui.view" id="sale_order_doc_mod">
+    <field name="name">x_jos.report_saleorder_document.mod</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="sale.report_saleorder_document"/>
+    <field name="type">qweb</field>
+    <field name="arch" type="xml">
+      <xpath expr="//span[@t-field='l.name']/../.." position="after">
+        <tr>
+          <td><span t-field="l.x_description"/></td>
+        </tr>
+      </xpath>
+    </field>
+    <field name="priority">15</field>
   </record>
 </odoo>

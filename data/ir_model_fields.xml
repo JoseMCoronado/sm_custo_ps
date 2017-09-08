@@ -126,6 +126,80 @@
         <field name="store" eval="True"/>
         <field name="ttype">many2one</field>
     </record>
+    <record model="ir.model.fields" id="journal_sales_team">
+        <field name="field_description">Sales Team</field>
+        <field name="name">x_team_id</field>
+        <field name="model">account.journal</field>
+        <field name="model_id" ref="account.model_account_journal"/>
+        <field name="relation">crm.team</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <!--Payment Method Qizard Fields-->
+    <record model="ir.model.fields" id="payment_wizard_order">
+        <field name="field_description">Sale Order</field>
+        <field name="name">x_order_id</field>
+        <field name="model">x_order.payment.wizard</field>
+        <field name="model_id" ref="sm_custo_ps.payment_method_wizard"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="relation">sale.order</field>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <record model="ir.model.fields" id="payment_wizard_journal">
+        <field name="field_description">Payment Method</field>
+        <field name="name">x_journal_id</field>
+        <field name="model">x_order.payment.wizard</field>
+        <field name="model_id" ref="sm_custo_ps.payment_method_wizard"/>
+        <field name="relation">account.journal</field>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">many2one</field>
+    </record>
+    <!--Order line desc feature-->
+    <record model="ir.model.fields" id="sale_order_desc_comp">
+        <field name="field_description">Description</field>
+        <field name="name">x_description</field>
+        <field name="model">sale.order.line</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="relation">x_order.line.desc</field>
+        <field name="ttype">many2one</field>
+    </record>
+    <record model="ir.model.fields" id="order_line_desc_order">
+        <field name="field_description">Order Line</field>
+        <field name="name">x_order_line_id</field>
+        <field name="model">x_order.line.desc</field>
+        <field name="model_id" ref="sm_custo_ps.order_line_desc"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="relation">sale.order.line</field>
+        <field name="ttype">many2one</field>
+    </record>
+    <record model="ir.model.fields" id="order_line_description">
+        <field name="field_description">Order Line</field>
+        <field name="name">x_line_desc</field>
+        <field name="model">x_order.line.desc</field>
+        <field name="model_id" ref="sm_custo_ps.order_line_desc"/>
+        <field name="on_delete">set null</field>
+        <field name="selectable" eval="True"/>
+        <field name="state">manual</field>
+        <field name="store" eval="True"/>
+        <field name="ttype">html</field>
+    </record>
+
     <!--Analytic account assignment for POS JEs-->
     <!--Analytic account assignment on Orders/Invoices for sales teams.-->
   </data>

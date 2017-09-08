@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record model="ir.model" id="payment_method_wizard">
+      <field name="info">Payment Method Wizard</field>
+      <field name="model">x_order.payment.wizard</field>
+      <field name="name">Payment Method Wizard</field>
+      <field name="state">manual</field>
+      <field name="transient" eval="True"/>
+    </record>
+    <record model="ir.model" id="order_line_desc">
+      <field name="info">Order Line Desc</field>
+      <field name="model">x_order.line.desc</field>
+      <field name="name">Order Line Desc</field>
+      <field name="state">manual</field>
+      <field name="transient" eval="False"/>
+    </record>
+  </data>
+</odoo>
