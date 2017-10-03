@@ -31,8 +31,11 @@ action = action_data
       <field name="sequence">5</field>
       <field name="state">code</field>
       <field name="code"><![CDATA[
-if record.team_id.x_fiscal_position_id:
-  record['fiscal_position_id'] = record.team_id.x_fiscal_position_id
+if record.team_id.x_fiscal_position_id or record.partner_id.property_account_position_id:
+  if record.partner_id.property_account_position_id:
+    record['fiscal_position_id'] = record.partner_id.property_account_position_id
+  else:
+    record['fiscal_position_id'] = record.team_id.x_fiscal_position_id
         ]]>
       </field>
     </record>
@@ -194,5 +197,30 @@ action = action_data
         <field name="name">[JOS] Pre Confirm Sale Order</field>
         <field name="sequence">5</field>
         <field name="state">code</field>
+      </record>
+      <!--Window/Server action to go to child contac's res.partner.form-->
+      <record model="ir.actions.act_window" id="action_window_open_child_contact">
+        <field name="name">Contacts (Child)</field>
+        <field name="res_model">res.partner</field>
+        <field name="groups_id" eval="[(6, 0, [])]"/>
+        <field name="auto_search" eval="True"/>
+        <field name="context">{}</field>
+        <field name="limit">80</field>
+        <field name="target">current</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+      </record>
+      <record model="ir.actions.server" id="action_server_open_child_contact">
+        <field name="model_id" ref="point_of_sale.model_res_partner"/>
+        <field name="name">[JOS] Call Window Action: Open Child Partner Form</field>
+        <field name="sequence">5</field>
+        <field name="state">code</field>
+        <field name="code"><![CDATA[
+contact = record.id
+action_data = env.ref('sm_custo_ps.action_window_open_child_contact').read()[0]
+action_data.update({'res_id': contact})
+action = action_data
+          ]]>
+        </field>
       </record>
 </odoo>

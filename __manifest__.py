@@ -16,7 +16,7 @@ Core workflow customizations/developments
         'data/ir_model_fields.xml',
         'data/ir_actions.xml',
         'data/ir_ui_views.xml',
-        #'data/ir_ui_menu.xml',
+        'data/ir_model_access.xml',
     ],
     'installable': True,
 

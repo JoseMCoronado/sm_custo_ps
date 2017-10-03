@@ -8,12 +8,5 @@
       <field name="state">manual</field>
       <field name="transient" eval="True"/>
     </record>
-    <record model="ir.model" id="order_line_desc">
-      <field name="info">Order Line Desc</field>
-      <field name="model">x_order.line.desc</field>
-      <field name="name">Order Line Desc</field>
-      <field name="state">manual</field>
-      <field name="transient" eval="False"/>
-    </record>
   </data>
 </odoo>

@@ -43,12 +43,15 @@
   <!--Creating All Pos Configs for each team-->
   <record model="pos.config" id="point_of_sale.pos_config_main">
       <field name="name">HQ Retail</field>
+      <field name="crm_team_id" ref="team_hq_team"/>
   </record>
   <record model="pos.config" id="pos_config_mtv">
       <field name="name">MTV Retail</field>
+      <field name="crm_team_id" ref="team_mtv_team"/>
   </record>
   <record model="pos.config" id="pos_config_ext">
       <field name="name">EXT Retail</field>
+      <field name="crm_team_id" ref="team_ext_team"/>
   </record>
   <!--Creating Trade In Operation Type-->
   <record model="ir.sequence" id="sequence_trade_in_hq">

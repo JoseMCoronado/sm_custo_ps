@@ -7,12 +7,9 @@
     <field name="priority">99</field>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='order_line']//tree//field[@name='product_uom_qty']" position="before">
-        <field name="x_hq_qoh"/>
-        <field name="x_mtv_qoh"/>
-        <field name="x_ext_qoh"/>
-        <button name="%(action_server_so_line_quants)d" type="action" string="INV"/>
+        <button name="%(action_server_so_line_quants)d" type="action" string="Stock"/>
         <field name="x_serial"/>
-        <field name="x_description" domain="[('id','=',0)]" context="{'default_x_order_line_id':active_id}"/>
+        <field name="x_description"/>
       </xpath>
       <xpath expr="//button[@name='action_confirm' and @states='sent']" position="attributes">
         <attribute name="name">%(action_pre_sales_confirm)d</attribute>
@@ -50,33 +47,254 @@
       </xpath>
     </field>
   </record>
-  <record model="ir.ui.view" id="order_line_desc_form">
-    <field name="name">x_jos.order.line.desc.form</field>
-    <field name="model">x_order.line.desc</field>
-    <field name="mode">primary</field>
-    <field name="inherit_id" eval="False"/>
-    <field name="arch" type="xml">
-      <form>
-            <group>
-                <field name="x_line_desc" nolabel="1"/>
-                <field name="x_order_line_id" invisible="1"/>
-            </group>
-        </form>
-    </field>
-    <field name="priority">15</field>
-  </record>
   <record model="ir.ui.view" id="sale_order_doc_mod">
     <field name="name">x_jos.report_saleorder_document.mod</field>
     <field name="mode">primary</field>
     <field name="inherit_id" ref="sale.report_saleorder_document"/>
     <field name="type">qweb</field>
     <field name="arch" type="xml">
-      <xpath expr="//span[@t-field='l.name']/../.." position="after">
-        <tr>
-          <td><span t-field="l.x_description"/></td>
-        </tr>
+      <!--TODO:THESE ARE NOT COMPLETED THEY DONT SHOW-->
+      <data>
+          <xpath expr="//span[@t-field='l.name']/../.." position="after">
+            <tr>
+              <td><span t-field="l.x_description"/></td>
+            </tr>
+          </xpath>
+          <xpath expr="//table[@class='table table-condensed']//thead//tr//th" position="after">
+            <th>Serial #</th>
+          </xpath>
+          <xpath expr="//span[@t-field='l.name']/.." position="after">
+            <td><span t-field="l.x_serial"/></td>
+          </xpath>
+      </data>
+    </field>
+    <field name="priority">99</field>
+  </record>
+  <record model="ir.ui.view" id="account_invoice_doc_mod">
+    <field name="name">x_jos.report_invoice_document.mod</field>
+    <field name="mode">primary</field>
+    <field name="inherit_id" ref="account.report_invoice_document"/>
+    <field name="type">qweb</field>
+    <field name="arch" type="xml">
+      <data>
+          <xpath expr="//table[@class='table table-condensed']//thead//tr//th" position="after">
+              <th>Serial #</th>
+          </xpath>
+          <xpath expr="//table[@class='table table-condensed']//tbody//tr//td" position="after">
+              <t t-if="not l.sale_line_ids" t-set="posorder" t-value="env['pos.order.line'].sudo().search([('order_id.invoice_id','=',o.id),('product_id','=',l.product_id.id)])"/>
+              <td><span t-if="l.sale_line_ids" t-esc="l.sale_line_ids[0].x_serial"/><span t-if="posorder" t-esc="','.join(posorder[0].pack_lot_ids.mapped('lot_name'))"/></td>
+          </xpath>
+      </data>
+    </field>
+    <field name="priority">99</field>
+  </record>
+  <record model="ir.ui.view" id="view_partner_form_mod">
+    <field name="name">x_jos.res.partner.form.mod</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='opt_out']" position="replace"/>
+      <xpath expr="//field[@name='email']" position="after">
+        <field name="opt_out"/>
+      </xpath>
+      <xpath expr="//field[@name='category_id']" position="attributes">
+        <attribute name="required">1</attribute>
+      </xpath>
+      <xpath expr="//field[@name='child_ids']//field[@name='comment']" position="after">
+        <field name="category_id" required="1" widget="many2many_tags"/>
+      </xpath>
+      <xpath expr="//div[@t-if='record.fax.raw_value']" position="after">
+        <div><button name="%(action_server_open_child_contact)d" class="oe_highlight" type="action">GO TO CONTACT</button></div>
       </xpath>
     </field>
-    <field name="priority">15</field>
+  </record>
+  <!--START OF NEW MODIFICATIONS-->
+  <record model="ir.ui.view" id="report_receipt">
+    <field name="name">report_receipt</field>
+    <field name="type">qweb</field>
+    <field name="inherit_id" eval="False"/>
+    <field name="priority">16</field>
+    <field name="arch" type="xml">
+          <t t-name="sm_custo_ps.report_receipt">
+              <t t-call="report.html_container"/>
+                  <t t-foreach="docs" t-as="o">
+                      <div class="page">
+                          <div class="row">
+                              <div class="col-xs-12 text-center">
+                                  <h2 t-esc="o.user_id.company_id.name"/>
+                                  <div t-field="o.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;, &quot;fax&quot;], &quot;no_marker&quot;: true, &quot;phone_icons&quot;: true}"/>
+                                  User: <span t-field="o.user_id"/><br/>
+                                  Date: <span t-field="o.date_order"/><br/>
+                              </div>
+                          </div>
+
+                          <div class="row">
+                          </div>
+
+                          <table class="table table-condensed">
+                              <thead>
+                                  <tr>
+                                      <th>Description</th>
+                                      <th class="text-right">Quantity</th>
+                                      <th class="text-right">Price</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr t-foreach="o.lines" t-as="line">
+                                      <td><span t-field="line.product_id"/></td>
+                                      <td class="text-right">
+                                          <t t-if="o.state != 'cancel' and o.statement_ids">
+                                              <span t-field="line.qty"/>
+                                          </t>
+                                      </td>
+                                      <td class="text-right">
+                                          <t t-if="o.state != 'cancel' and o.statement_ids">
+                                              <span t-esc="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;,&quot;display_currency&quot;:res_company.currency_id}"/>
+                                          </t>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+
+                          <div class="row">
+                              <div class="col-xs-12 pull-right">
+                                  <table class="table table-condensed">
+                                      <tr class="border-black">
+                                          <td><strong>Taxes</strong></td>
+                                          <td class="text-right">
+                                              <strong t-esc="o.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;,&quot;display_currency&quot;:res_company.currency_id}"/>
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td><strong>Total</strong></td>
+                                          <td class="text-right">
+                                              <strong t-esc="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;,&quot;display_currency&quot;:res_company.currency_id}"/>
+                                          </td>
+                                      </tr>
+                                  </table>
+                              </div>
+                          </div>
+
+                          <table class="table table-condensed">
+                              <thead>
+                                  <tr>
+                                      <th>Payment Mode</th>
+                                      <th>Amount</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr t-foreach="statement_ids" t-as="d">
+                                      <td>
+                                          <span t-esc="d.journal_id"/>
+                                      </td>
+                                      <td>
+                                          <span t-esc="d.amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;,&quot;display_currency&quot;:res_company.currency_id}"/>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </t>
+              </t>
+          <!--</t>-->
+    </field>
+  </record>
+  <record model="ir.ui.view" id="report_receipt_guest">
+    <field name="name">report_receipt_guest</field>
+    <field name="type">qweb</field>
+    <field name="inherit_id" eval="False"/>
+    <field name="priority">16</field>
+    <field name="arch" type="xml">
+
+          <t t-name="sm_custo_ps.report_receipt_guest">
+              <t t-call="report.html_container">
+                  <t t-foreach="docs" t-as="o">
+                      <div class="page">
+                          <div class="row">
+                              <div class="col-xs-12 text-center">
+                                  <h2 t-esc="o.user_id.company_id.name"/>
+                                  <div t-field="o.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;, &quot;fax&quot;], &quot;no_marker&quot;: true, &quot;phone_icons&quot;: true}"/>
+                                  User: <span t-field="o.user_id"/><br/>
+                                  Date: <span t-field="o.date_order"/><br/>
+                              </div>
+                          </div>
+
+                          <div class="row">
+                          </div>
+
+                          <table class="table table-condensed">
+                              <thead>
+                                  <tr>
+                                      <th>Description</th>
+                                      <th class="text-right">Quantity</th>
+
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr t-foreach="o.lines" t-as="line">
+                                      <td><span t-field="line.product_id"/></td>
+                                      <td class="text-right">
+                                          <t t-if="o.state != 'cancel' and o.statement_ids">
+                                              <span t-field="line.qty"/>
+                                          </t>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </t>
+              </t>
+          </t>
+    </field>
+  </record>
+  <record model="report.paperformat" id="paperformat_posreceipt">
+    <field name="name">Point of Sale Receipt</field>
+    <field name="format">custom</field>
+    <field name="page_height">150</field>
+    <field name="page_width">60</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">3</field>
+    <field name="margin_bottom">3</field>
+    <field name="margin_left">3</field>
+    <field name="margin_right">3</field>
+    <field name="header_spacing">3</field>
+    <field name="dpi">130</field>
+  </record>
+  <record model="ir.actions.report.xml" id="report_posreceipt">
+    <field name="name">Receipt</field>
+    <field name="model">pos.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">sm_custo_ps.report_receipt</field>
+    <field name="paperformat_id" ref="paperformat_posreceipt"/>
+  </record>
+  <record model="ir.actions.report.xml" id="report_posreceipt_guest">
+    <field name="name">Guest Receipt</field>
+    <field name="model">pos.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">sm_custo_ps.report_receipt_guest</field>
+    <field name="paperformat_id" ref="paperformat_posreceipt"/>
+  </record>
+  <record model="ir.ui.view" id="view_pos_details_mod">
+    <field name="name">x_jos.pos.details.wizard.form.mod</field>
+    <field name="model">pos.details.wizard</field>
+    <field name="inherit_id" ref="point_of_sale.view_pos_details_wizard"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='pos_config_ids']" position="attributes">
+        <attribute name="widget">many2many_tags</attribute>
+      </xpath>
+    </field>
+  </record>
+  <record model="ir.ui.view" id="product_template_search_view_mod">
+    <field name="name">x_jos.product.template.search.mod</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_search_view"/>
+    <field name="priority">99</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='categ_id']" position="after">
+        <field name="x_parent_category" domain="[('x_parent_category', 'child_of', self)]"/>
+      </xpath>
+    </field>
   </record>
 </odoo>
