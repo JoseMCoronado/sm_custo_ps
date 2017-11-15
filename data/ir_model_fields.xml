@@ -14,19 +14,6 @@
         <field name="readonly" eval="False"/>
         <field name="ttype">char</field>
     </record>
-    <!--Fiscal Position to set on the crm.team-->
-    <record model="ir.model.fields" id="team_fiscal_position">
-        <field name="field_description">Fiscal Position</field>
-        <field name="name">x_fiscal_position_id</field>
-        <field name="model">crm.team</field>
-        <field name="model_id" ref="sales_team.model_crm_team"/>
-        <field name="relation">account.fiscal.position</field>
-        <field name="on_delete">set null</field>
-        <field name="selectable" eval="True"/>
-        <field name="state">manual</field>
-        <field name="store" eval="True"/>
-        <field name="ttype">many2one</field>
-    </record>
     <!--Boolean to automate transfer/invoice creation and validation on team -->
     <record model="ir.model.fields" id="team_check_automate">
         <field name="field_description">Automate Transfer/Invoice Validation</field>
@@ -39,57 +26,7 @@
         <field name="store" eval="True"/>
         <field name="ttype">boolean</field>
     </record>
-    <!--Adding journal and analytic account links to crm.team and journal respectively-->
-    <record model="ir.model.fields" id="team_journal">
-        <field name="field_description">Journal</field>
-        <field name="name">x_journal_id</field>
-        <field name="model">crm.team</field>
-        <field name="model_id" ref="sales_team.model_crm_team"/>
-        <field name="relation">account.journal</field>
-        <field name="on_delete">set null</field>
-        <field name="selectable" eval="True"/>
-        <field name="state">manual</field>
-        <field name="store" eval="True"/>
-        <field name="ttype">many2one</field>
-    </record>
-    <!--Payment Journal on Sale Order-->
-    <record model="ir.model.fields" id="team_payment_journal">
-        <field name="field_description">Payment Journal</field>
-        <field name="name">x_payment_journal_id</field>
-        <field name="model">crm.team</field>
-        <field name="model_id" ref="sales_team.model_crm_team"/>
-        <field name="relation">account.journal</field>
-        <field name="on_delete">set null</field>
-        <field name="selectable" eval="True"/>
-        <field name="state">manual</field>
-        <field name="store" eval="True"/>
-        <field name="ttype">many2one</field>
-    </record>
-    <record model="ir.model.fields" id="journal_analytic_account">
-        <field name="field_description">Analytic Account</field>
-        <field name="name">x_analytic_account_id</field>
-        <field name="model">account.journal</field>
-        <field name="model_id" ref="account.model_account_journal"/>
-        <field name="relation">account.analytic.account</field>
-        <field name="on_delete">set null</field>
-        <field name="selectable" eval="True"/>
-        <field name="state">manual</field>
-        <field name="store" eval="True"/>
-        <field name="ttype">many2one</field>
-    </record>
-    <record model="ir.model.fields" id="journal_sales_team">
-        <field name="field_description">Sales Team</field>
-        <field name="name">x_team_id</field>
-        <field name="model">account.journal</field>
-        <field name="model_id" ref="account.model_account_journal"/>
-        <field name="relation">crm.team</field>
-        <field name="on_delete">set null</field>
-        <field name="selectable" eval="True"/>
-        <field name="state">manual</field>
-        <field name="store" eval="True"/>
-        <field name="ttype">many2one</field>
-    </record>
-    <!--Payment Method Qizard Fields-->
+    <!--Payment Method Wizard Fields-->
     <record model="ir.model.fields" id="payment_wizard_order">
         <field name="field_description">Sale Order</field>
         <field name="name">x_order_id</field>
@@ -114,7 +51,7 @@
         <field name="store" eval="True"/>
         <field name="ttype">many2one</field>
     </record>
-    <!--Order line desc feature-->
+    <!--Ability to add an advanced description (computer specs) on the sale order line-->
     <record model="ir.model.fields" id="sale_order_desc_comp">
         <field name="field_description">Description</field>
         <field name="name">x_description</field>
@@ -126,11 +63,12 @@
         <field name="store" eval="True"/>
         <field name="ttype">text</field>
     </record>
+    <!--Ability to group/filter products by parent category-->
     <record model="ir.model.fields" id="field_product_template_parent_category">
         <field name="field_description">Parent Category</field>
         <field name="name">x_parent_category</field>
         <field name="model">product.template</field>
-        <field name="model_id" ref="point_of_sale.model_product_template"/>
+        <field name="model_id" ref="product.model_product_template"/>
         <field name="on_delete">set null</field>
         <field name="selectable" eval="True"/>
         <field name="state">manual</field>
@@ -140,7 +78,5 @@
         <field name="relation">product.category</field>
         <field name="ttype">many2one</field>
     </record>
-    <!--Analytic account assignment for POS JEs-->
-    <!--Analytic account assignment on Orders/Invoices for sales teams.-->
   </data>
 </odoo>

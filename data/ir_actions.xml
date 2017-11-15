@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--Window/Server action to display Inventory based on the Sale Order Line-->
+    <!--Window/Server action to display inventory based on the Sale Order Line-->
     <record model="ir.actions.act_window" id="action_window_so_line_quants">
       <field name="name">Inventory by Store</field>
       <field name="res_model">stock.quant</field>
@@ -24,72 +24,6 @@ action = action_data
         ]]>
       </field>
     </record>
-    <!--Server action to update the fiscal position on the sale.order on creation.-->
-    <record model="ir.actions.server" id="action_server_fiscal_so_update">
-      <field name="model_id" ref="sale_stock.model_sale_order"/>
-      <field name="name">[JOS] Set Team Fiscal Position on Creation/Update</field>
-      <field name="sequence">5</field>
-      <field name="state">code</field>
-      <field name="code"><![CDATA[
-if record.team_id.x_fiscal_position_id or record.partner_id.property_account_position_id:
-  if record.partner_id.property_account_position_id:
-    record['fiscal_position_id'] = record.partner_id.property_account_position_id
-  else:
-    record['fiscal_position_id'] = record.team_id.x_fiscal_position_id
-        ]]>
-      </field>
-    </record>
-    <record  model="base.automation" id="auto_action_fiscal_so_update">
-      <field name="name">[JOS] Set Team Fiscal Position on Creation/Update</field>
-      <field name="active" eval="True"/>
-      <field name="model_id" ref="sale_stock.model_sale_order"/>
-      <field name="sequence" eval="2"/>
-      <field name="trigger">on_create_or_write</field>
-      <field name="action_server_id" eval="ref('action_server_fiscal_so_update')"/>
-    </record>
-    <!--Server action to set correct sales journal based on the team-->
-    <record model="ir.actions.server" id="action_server_journal_invoice">
-      <field name="model_id" ref="account.model_account_invoice"/>
-      <field name="name">[JOS] Set Journal on Invoice Creation</field>
-      <field name="sequence">5</field>
-      <field name="state">code</field>
-      <field name="code"><![CDATA[
-if record.team_id.x_journal_id:
-  record['journal_id'] = record.team_id.x_journal_id
-        ]]>
-      </field>
-    </record>
-    <record  model="base.automation" id="auto_action_journal_invoice">
-      <field name="name">[JOS] Set Journal on Invoice Creation</field>
-      <field name="active" eval="True"/>
-      <field name="model_id" ref="account.model_account_invoice"/>
-      <field name="sequence" eval="2"/>
-      <field name="trigger">on_create</field>
-      <field name="action_server_id" eval="ref('action_server_journal_invoice')"/>
-    </record>
-    <!--Assign analytic account to each journal item-->
-    <!--<record model="ir.actions.server" id="action_server_analytic_journal_item">
-      <field name="model_id" ref="account.model_account_move_line"/>
-      <field name="name">[JOS] Set Analytic Account on Journal Item</field>
-      <field name="sequence">5</field>
-      <field name="state">code</field>
-      <field name="code"><![CDATA[
-if record.journal_id.x_analytic_account_id:
-  record['analytic_account_id'] = record.journal_id.x_analytic_account_id
-else:
-  raise Warning('Configuration Error: Missing Analytic Account in Sales Journal for Store')
-        ]]>
-      </field>
-    </record>
-    <record  model="base.automation" id="auto_action_analytic_journal_item">
-      <field name="name">[JOS] Set Analytic Account on Journal Item</field>
-      <field name="active" eval="True"/>
-      <field name="model_id" ref="account.model_account_move_line"/>
-      <field name="sequence" eval="2"/>
-      <field name="trigger">on_write</field>
-      <field name="action_server_id" eval="ref('action_server_analytic_journal_item')"/>
-    </record>-->
-    <!--Action to auto validate transfers on confirmation of SO for specified auto teams-->
     <record model="ir.actions.server" id="action_server_confirm_sale">
       <field name="model_id" ref="sm_custo_ps.payment_method_wizard"/>
       <field name="name">[JOS] Actions on Confirmation of Sale Order </field>
@@ -104,23 +38,22 @@ if record.x_order_id.team_id.x_automate == True:
       picking.action_cancel()
     else:
       if picking.state == 'assigned': #and picking.location_dest_id.usage != 'internal':
-        for pack in picking.pack_operation_ids:
-            if pack.product_id.product_tmpl_id.tracking in ['serial','lot']:
-                so_line = record.x_order_id.order_line.filtered(lambda r: r.product_id == pack.product_id)[0]
+        for move in picking.move_lines:
+            if move.product_id.product_tmpl_id.tracking in ['serial','lot']:
+                so_line = record.x_order_id.order_line.filtered(lambda r: r.product_id == move.product_id)[0]
                 entered_lot = env['stock.production.lot'].search([('name','ilike',so_line.x_serial)],limit=1)
                 if entered_lot:
-                  pack.pack_lot_ids[0].write({'lot_id': entered_lot.id})
-                  #raise Warning(pack.pack_lot_ids[0].lot_id)
-                  pack.pack_lot_ids[0].do_plus()
+                  move.move_line_ids[0].write({'lot_id': entered_lot.id})
+                  #move.pack_lot_ids[0].do_plus()
                 else:
                   raise Warning('No Serial # found')
             else:
-                if pack.product_qty > 0:
-                    pack.write({'qty_done': pack.product_qty})
-                else:
-                    pack.unlink()
-        if all(pack2.product_qty == pack2.product_qty for pack2 in picking.pack_operation_ids):
-            picking.do_new_transfer()
+                if move.product_qty > 0:
+                    move.write({'qty_done': move.product_qty})
+                #else:
+                #    move.unlink()
+        if all(move2.product_uom_qty == move2.quantity_done for move2 in picking.move_lines):
+            picking.button_validate()
   record.x_order_id.action_invoice_create()
   for invoice in record.x_order_id.invoice_ids:
     invoice.action_invoice_open()
@@ -136,7 +69,6 @@ if record.x_order_id.team_id.x_automate == True:
         'partner_id': invoice.partner_id.id,
         'partner_type': 'customer',
     }
-    #raise Warning(str(payment_vals))
     payment = env['account.payment'].create(payment_vals)
     payment.post()
         ]]>
@@ -165,62 +97,56 @@ if record.x_order_id.team_id.x_automate == True:
     <record model="ir.actions.act_window" id="action_payment_method_wizard">
       <field name="auto_search" eval="True"/>
       <field name="context">{}</field>
-      <field name="domain" eval="False"/>
-      <field name="filter" eval="False"/>
       <field name="groups_id" eval="[(6, 0, [])]"/>
       <field name="limit">80</field>
-      <field name="multi" eval="False"/>
       <field name="name">Enter Payment Method</field>
       <field name="res_model">x_order.payment.wizard</field>
-      <field name="search_view_id" eval="False"/>
-      <field name="src_model" eval="False"/>
       <field name="target">new</field>
       <field name="type">ir.actions.act_window</field>
-      <field name="usage" eval="False"/>
       <field name="view_id" ref="sm_custo_ps.view_payment_method_wizard"/>
       <field name="view_ids" eval="[(6, 0, [])]"/>
       <field name="view_mode">form</field>
       <field name="view_type">form</field>
     </record>
     <record model="ir.actions.server" id="action_pre_sales_confirm">
-        <field name="child_ids" eval="[(6, 0, [])]"/>
-        <field name="code"><![CDATA[
+      <field name="crud_model_id" eval="False"/>
+      <field name="help" eval="False"/>
+      <field name="link_field_id" eval="False"/>
+      <field name="model_id" ref="sale.model_sale_order"/>
+      <field name="name">[JOS] Pre Confirm Sale Order</field>
+      <field name="sequence">5</field>
+      <field name="state">code</field>
+      <field name="child_ids" eval="[(6, 0, [])]"/>
+      <field name="code"><![CDATA[
 action_data = env.ref('sm_custo_ps.action_payment_method_wizard').read()[0]
 action_data.update({'context': {'default_x_order_id': record.id}})
 action = action_data
-          ]]>
-        </field>
-        <field name="crud_model_id" eval="False"/>
-        <field name="help" eval="False"/>
-        <field name="link_field_id" eval="False"/>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="name">[JOS] Pre Confirm Sale Order</field>
-        <field name="sequence">5</field>
-        <field name="state">code</field>
-      </record>
-      <!--Window/Server action to go to child contac's res.partner.form-->
-      <record model="ir.actions.act_window" id="action_window_open_child_contact">
-        <field name="name">Contacts (Child)</field>
-        <field name="res_model">res.partner</field>
-        <field name="groups_id" eval="[(6, 0, [])]"/>
-        <field name="auto_search" eval="True"/>
-        <field name="context">{}</field>
-        <field name="limit">80</field>
-        <field name="target">current</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">form</field>
-      </record>
-      <record model="ir.actions.server" id="action_server_open_child_contact">
-        <field name="model_id" ref="point_of_sale.model_res_partner"/>
-        <field name="name">[JOS] Call Window Action: Open Child Partner Form</field>
-        <field name="sequence">5</field>
-        <field name="state">code</field>
-        <field name="code"><![CDATA[
+        ]]>
+      </field>
+    </record>
+    <!--Window/Server action to go to child contact's res.partner.form-->
+    <record model="ir.actions.act_window" id="action_window_open_child_contact">
+      <field name="name">Contacts (Child)</field>
+      <field name="res_model">res.partner</field>
+      <field name="groups_id" eval="[(6, 0, [])]"/>
+      <field name="auto_search" eval="True"/>
+      <field name="context">{}</field>
+      <field name="limit">80</field>
+      <field name="target">current</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="view_mode">form</field>
+    </record>
+    <record model="ir.actions.server" id="action_server_open_child_contact">
+      <field name="model_id" ref="point_of_sale.model_res_partner"/>
+      <field name="name">[JOS] Call Window Action: Open Child Partner Form</field>
+      <field name="sequence">5</field>
+      <field name="state">code</field>
+      <field name="code"><![CDATA[
 contact = record.id
 action_data = env.ref('sm_custo_ps.action_window_open_child_contact').read()[0]
 action_data.update({'res_id': contact})
 action = action_data
-          ]]>
-        </field>
-      </record>
+        ]]>
+      </field>
+    </record>
 </odoo>

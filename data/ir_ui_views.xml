@@ -11,14 +11,14 @@
         <field name="x_serial"/>
         <field name="x_description"/>
       </xpath>
-      <xpath expr="//button[@name='action_confirm' and @states='sent']" position="attributes">
+      <xpath expr="//button[@id='action_confirm']" position="attributes">
         <attribute name="name">%(action_pre_sales_confirm)d</attribute>
         <attribute name="type">action</attribute>
       </xpath>
-      <xpath expr="//button[@name='action_confirm' and @states='draft']" position="attributes">
+      <!--TODO<xpath expr="//button[@name='action_confirm']" position="attributes">
         <attribute name="name">%(action_pre_sales_confirm)d</attribute>
         <attribute name="type">action</attribute>
-      </xpath>
+      </xpath>-->
     </field>
   </record>
   <record model="ir.ui.view" id="crm_team_view_form_mod">
@@ -28,22 +28,7 @@
     <field name="priority">99</field>
     <field name="arch" type="xml">
       <xpath expr="//page[@name='dashboard']//field[@name='invoiced_target']" position="after">
-        <field name="x_fiscal_position_id"/>
-        <field name="x_journal_id"/>
-        <field name="x_payment_journal_id"/>
         <field name="x_automate"/>
-      </xpath>
-    </field>
-  </record>
-  <record model="ir.ui.view" id="view_account_journal_form_mod">
-    <field name="name">x_jos.account.journal.form.mod</field>
-    <field name="model">account.journal</field>
-    <field name="inherit_id" ref="account.view_account_journal_form"/>
-    <field name="priority">99</field>
-    <field name="arch" type="xml">
-      <xpath expr="//field[@name='default_credit_account_id']" position="after">
-        <field name="x_analytic_account_id"/>
-        <field name="x_team_id"/>
       </xpath>
     </field>
   </record>
@@ -104,7 +89,7 @@
       <xpath expr="//field[@name='child_ids']//field[@name='comment']" position="after">
         <field name="category_id" required="1" widget="many2many_tags"/>
       </xpath>
-      <xpath expr="//div[@t-if='record.fax.raw_value']" position="after">
+      <xpath expr="//div[@t-if='record.mobile.raw_value']" position="after">
         <div><button name="%(action_server_open_child_contact)d" class="oe_highlight" type="action">GO TO CONTACT</button></div>
       </xpath>
     </field>
@@ -261,14 +246,14 @@
     <field name="header_spacing">3</field>
     <field name="dpi">130</field>
   </record>
-  <record model="ir.actions.report.xml" id="report_posreceipt">
+  <record model="ir.actions.report" id="report_posreceipt">
     <field name="name">Receipt</field>
     <field name="model">pos.order</field>
     <field name="report_type">qweb-pdf</field>
     <field name="report_name">sm_custo_ps.report_receipt</field>
     <field name="paperformat_id" ref="paperformat_posreceipt"/>
   </record>
-  <record model="ir.actions.report.xml" id="report_posreceipt_guest">
+  <record model="ir.actions.report" id="report_posreceipt_guest">
     <field name="name">Guest Receipt</field>
     <field name="model">pos.order</field>
     <field name="report_type">qweb-pdf</field>
