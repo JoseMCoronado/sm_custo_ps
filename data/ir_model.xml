@@ -8,5 +8,12 @@
       <field name="state">manual</field>
       <field name="transient" eval="True"/>
     </record>
+    <record model="ir.model" id="product_report_tag">
+      <field name="info">Product Reporting Tag</field>
+      <field name="model">x_product.report.tag</field>
+      <field name="name">Product Reporting Tag</field>
+      <field name="state">manual</field>
+      <field name="transient" eval="False"/>
+    </record>
   </data>
 </odoo>

@@ -9,13 +9,14 @@
     'description': """
 Core workflow customizations/developments
         """,
-    'depends': ['base','stock','product','sale','base_automation','point_of_sale'],
+    'depends': ['base','stock','product','sale','base_automation','point_of_sale','sale_subscription','mrp'],
     'data': [
         'data/ir_model.xml',
         'data/ir_model_fields.xml',
         'data/ir_actions.xml',
         'data/ir_ui_views.xml',
         'data/ir_model_access.xml',
+        'data/res_groups.xml',
     ],
     'installable': True,
 

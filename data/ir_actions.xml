@@ -30,47 +30,50 @@ action = action_data
       <field name="sequence">5</field>
       <field name="state">code</field>
       <field name="code"><![CDATA[
-record.x_order_id.action_confirm()
-if record.x_order_id.team_id.x_automate == True:
-  for picking in record.x_order_id.picking_ids:
-    operation = record.env['ir.model.data'].sudo().get_object('sm_custo_ps', 'op_trade_in_hq')
-    if picking.picking_type_id.id == operation.id:
-      picking.action_cancel()
-    else:
-      if picking.state == 'assigned': #and picking.location_dest_id.usage != 'internal':
-        for move in picking.move_lines:
-            if move.product_id.product_tmpl_id.tracking in ['serial','lot']:
-                so_line = record.x_order_id.order_line.filtered(lambda r: r.product_id == move.product_id)[0]
-                entered_lot = env['stock.production.lot'].search([('name','ilike',so_line.x_serial)],limit=1)
-                if entered_lot:
-                  move.move_line_ids[0].write({'lot_id': entered_lot.id})
-                  #move.pack_lot_ids[0].do_plus()
-                else:
-                  raise Warning('No Serial # found')
-            else:
-                if move.product_qty > 0:
-                    move.write({'qty_done': move.product_qty})
-                #else:
-                #    move.unlink()
-        if all(move2.product_uom_qty == move2.quantity_done for move2 in picking.move_lines):
-            picking.button_validate()
-  record.x_order_id.action_invoice_create()
-  for invoice in record.x_order_id.invoice_ids:
-    invoice.action_invoice_open()
-    payment_vals = {
-        'journal_id': record.x_journal_id.id,
-        'payment_method_id': 1,
-        'payment_date': datetime.datetime.now().strftime('%Y-%m-%d'),
-        'communication': invoice.number,
-        'invoice_ids': [(6, 0, [invoice.id])],
-        'payment_type': 'inbound',
-        'amount': '%.2f' % invoice.amount_total,
-        'currency_id': invoice.currency_id.id,
-        'partner_id': invoice.partner_id.id,
-        'partner_type': 'customer',
-    }
-    payment = env['account.payment'].create(payment_vals)
-    payment.post()
+if record.x_paylater == True:
+  record.x_order_id.action_confirm()
+else:
+  record.x_order_id.action_confirm()
+  if record.x_order_id.team_id.x_automate == True:
+    for picking in record.x_order_id.picking_ids:
+      operation = record.env['ir.model.data'].sudo().get_object('sm_custo_ps', 'op_trade_in_hq')
+      if picking.picking_type_id.id == operation.id:
+        picking.action_cancel()
+      else:
+        if picking.state == 'assigned': #and picking.location_dest_id.usage != 'internal':
+          for move in picking.move_lines:
+              if move.product_id.product_tmpl_id.tracking in ['serial','lot']:
+                  so_line = record.x_order_id.order_line.filtered(lambda r: r.product_id == move.product_id)[0]
+                  entered_lot = env['stock.production.lot'].search([('name','ilike',so_line.x_serial)],limit=1)
+                  if entered_lot:
+                    move.move_line_ids[0].write({'lot_id': entered_lot.id})
+                    #move.pack_lot_ids[0].do_plus()
+                  else:
+                    raise Warning('No Serial # found')
+              else:
+                  if move.product_qty > 0:
+                      move.write({'qty_done': move.product_qty})
+                  #else:
+                  #    move.unlink()
+          if all(move2.product_uom_qty == move2.quantity_done for move2 in picking.move_lines):
+              picking.button_validate()
+    record.x_order_id.action_invoice_create()
+    for invoice in record.x_order_id.invoice_ids:
+      invoice.action_invoice_open()
+      payment_vals = {
+          'journal_id': record.x_journal_id.id,
+          'payment_method_id': 1,
+          'payment_date': datetime.datetime.now().strftime('%Y-%m-%d'),
+          'communication': invoice.number,
+          'invoice_ids': [(6, 0, [invoice.id])],
+          'payment_type': 'inbound',
+          'amount': '%.2f' % invoice.amount_total,
+          'currency_id': invoice.currency_id.id,
+          'partner_id': invoice.partner_id.id,
+          'partner_type': 'customer',
+      }
+      payment = env['account.payment'].create(payment_vals)
+      payment.post()
         ]]>
       </field>
     </record>
@@ -85,6 +88,7 @@ if record.x_order_id.team_id.x_automate == True:
               <group>
                   <field name="x_journal_id"/>
                   <field name="x_order_id" invisible="1"/>
+                  <field name="x_paylater"/>
               </group>
               <footer>
                   <button string="Confirm" type="action" name="%(action_server_confirm_sale)d" class="oe_highlight"/> or
